@@ -575,7 +575,7 @@ export function WorkItemDetailsPage() {
         <Stack spacing={0} sx={{ minHeight: 0 }}>
           <Panel
             title="Comments"
-            sx={{ height: { xs: commentsExpanded ? 'calc(100vh - 120px)' : 'auto', xl: '100%' }, minHeight: { xs: commentsExpanded ? 760 : 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
+            sx={{ height: { xs: commentsExpanded ? 'calc(100vh - 180px)' : 'auto', xl: '100%' }, minHeight: { xs: commentsExpanded ? 680 : 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
             action={(
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <Chip icon={<MessageSquare size={14} />} label={workItem.commentCount} size="small" />
@@ -595,7 +595,7 @@ export function WorkItemDetailsPage() {
               </Stack>
             )}
           >
-            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: commentsExpanded ? 700 : 520, xl: 0 }, height: { xs: commentsExpanded ? '100%' : '72vh', xl: '100%' } }}>
+            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: 520, xl: 0 }, height: { xs: commentsExpanded ? '100%' : '72vh', xl: '100%' } }}>
               <Box
                 onScroll={(event) => {
                   const target = event.currentTarget;

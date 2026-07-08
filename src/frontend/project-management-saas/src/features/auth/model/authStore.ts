@@ -30,12 +30,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           isInitialized: true
         }),
-      setCurrentUser: (user) =>
-        set({
-          user,
-          isAuthenticated: true,
-          isInitialized: true
-        }),
       clearSession: () =>
         set({
           accessToken: null,

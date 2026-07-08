@@ -64,7 +64,7 @@ export function ProjectMembersPage() {
   });
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
-    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canLoadUserLookup
   });
 
