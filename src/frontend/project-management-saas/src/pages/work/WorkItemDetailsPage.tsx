@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   Bold,
@@ -36,7 +36,9 @@ import {
   List as ListIcon,
   ListChecks,
   ListOrdered,
+  Maximize2,
   MessageSquare,
+  Minimize2,
   Paperclip,
   Pencil,
   Pin,
@@ -83,7 +85,7 @@ import { WorkItemForm } from './workItemForm';
 import { toRequest } from './workItemFormModel';
 
 const pageRequest = { pageNumber: 1, pageSize: 50, sortBy: 'createdOn', sortDirection: 'desc' as const };
-const commentPageRequest = { pageNumber: 1, pageSize: 40, sortBy: 'createdOn', sortDirection: 'desc' as const };
+const commentPageRequest = { pageNumber: 1, pageSize: 100, sortBy: 'createdOn', sortDirection: 'desc' as const };
 const activityPageRequest = { pageNumber: 1, pageSize: 40, sortBy: 'createdAt', sortDirection: 'desc' as const };
 const linkTypes: WorkItemLinkType[] = ['Duplicate', 'Blocks', 'BlockedBy', 'RelatesTo', 'DependsOn'];
 const supportedReactions = ['\u{1F44D}', '\u2764\uFE0F', '\u{1F602}', '\u{1F525}', '\u{1F389}', '\u{1F680}', '\u{1F440}', '\u{1F604}', '\u{1F622}', '\u2757'];
@@ -150,6 +152,7 @@ export function WorkItemDetailsPage() {
   const [form, setForm] = useState(() => toRequestPlaceholder());
   const [transitionStatusId, setTransitionStatusId] = useState('');
   const [commentBody, setCommentBody] = useState('');
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [editingComment, setEditingComment] = useState<WorkComment | null>(null);
   const [replyTo, setReplyTo] = useState<WorkComment | null>(null);
@@ -179,12 +182,12 @@ export function WorkItemDetailsPage() {
   });
   const projectsQuery = useQuery({
     queryKey: ['projects', 'lookup'],
-    queryFn: () => managementApi.projects.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.projects.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewProjects
   });
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
-    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewUsers
   });
   const commentsQuery = useInfiniteQuery({
@@ -192,7 +195,11 @@ export function WorkItemDetailsPage() {
     queryFn: ({ pageParam }) => managementApi.work.comments.list(workItemId!, { ...commentPageRequest, pageNumber: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pageNumber < lastPage.totalPages ? lastPage.pageNumber + 1 : undefined,
-    enabled: Boolean(workItemId)
+    enabled: Boolean(workItemId),
+    staleTime: 30_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData
   });
   const attachmentsQuery = useQuery({
     queryKey: ['work-item', workItemId, 'attachments'],
@@ -475,8 +482,8 @@ export function WorkItemDetailsPage() {
         )}
       />
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 1.05fr) minmax(430px, 0.95fr)' }, gap: 2.5, alignItems: 'stretch', flex: 1, minHeight: 0, overflow: { xs: 'visible', xl: 'hidden' } }}>
-        <Stack spacing={2.5} sx={{ minHeight: 0, overflow: { xs: 'visible', xl: 'auto' }, pr: { xl: 1 }, pb: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: commentsExpanded ? '1fr' : { xs: '1fr', xl: 'minmax(0, 1.05fr) minmax(430px, 0.95fr)' }, gap: 2.5, alignItems: 'stretch', flex: 1, minHeight: 0, overflow: { xs: 'visible', xl: 'hidden' } }}>
+        <Stack spacing={2.5} sx={{ minHeight: 0, overflow: { xs: 'visible', xl: 'auto' }, pr: { xl: 1 }, pb: 1, display: commentsExpanded ? { xs: 'none', xl: 'none' } : 'flex' }}>
           <Panel title="Summary">
             <Stack spacing={2}>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
@@ -568,10 +575,18 @@ export function WorkItemDetailsPage() {
         <Stack spacing={0} sx={{ minHeight: 0 }}>
           <Panel
             title="Comments"
-            sx={{ height: { xs: 'auto', xl: '100%' }, minHeight: { xs: 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
+            sx={{ height: { xs: commentsExpanded ? 'calc(100vh - 120px)' : 'auto', xl: '100%' }, minHeight: { xs: commentsExpanded ? 760 : 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
             action={(
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <Chip icon={<MessageSquare size={14} />} label={workItem.commentCount} size="small" />
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={commentsExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  onClick={() => setCommentsExpanded((expanded) => !expanded)}
+                >
+                  {commentsExpanded ? 'Collapse' : 'Expand'}
+                </Button>
                 {canManageComments ? (
                   <Button size="small" variant="outlined" disabled={markAllReadMutation.isPending} onClick={() => markAllReadMutation.mutate()}>
                     Mark All Read
@@ -580,7 +595,7 @@ export function WorkItemDetailsPage() {
               </Stack>
             )}
           >
-            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: 520, xl: 0 }, height: { xs: '72vh', xl: '100%' } }}>
+            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: commentsExpanded ? 700 : 520, xl: 0 }, height: { xs: commentsExpanded ? '100%' : '72vh', xl: '100%' } }}>
               <Box
                 onScroll={(event) => {
                   const target = event.currentTarget;

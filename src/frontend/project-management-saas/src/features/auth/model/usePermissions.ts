@@ -5,13 +5,15 @@ import type { PermissionCode } from '../../../shared/security/permissions';
 const emptyPermissionCodes: PermissionCode[] = [];
 
 export function usePermissions() {
-  const permissionCodes = useAuthStore((state) => state.user?.permissions ?? emptyPermissionCodes);
+  const user = useAuthStore((state) => state.user);
+  const permissionCodes = user?.permissions ?? emptyPermissionCodes;
+  const isSystemAdministrator = user?.roles.includes('SystemAdministrator') ?? false;
   const permissionSet = useMemo(() => new Set(permissionCodes), [permissionCodes]);
 
   return {
     permissionCodes,
-    hasPermission: (permission?: PermissionCode) => !permission || permissionSet.has(permission),
+    hasPermission: (permission?: PermissionCode) => isSystemAdministrator || !permission || permissionSet.has(permission),
     hasAnyPermission: (permissions: readonly PermissionCode[]) =>
-      permissions.length === 0 || permissions.some((permission) => permissionSet.has(permission))
+      isSystemAdministrator || permissions.length === 0 || permissions.some((permission) => permissionSet.has(permission))
   };
 }

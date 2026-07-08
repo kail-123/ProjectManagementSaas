@@ -50,6 +50,7 @@ export function ProjectMembersPage() {
   const canManageMembers = hasPermission(permissions.projectMembers.manage);
   const canExportMembers = hasPermission(permissions.projectMembers.export);
   const canViewUsers = hasPermission(permissions.users.view);
+  const canLoadUserLookup = canViewUsers || canManageMembers;
 
   const projectQuery = useQuery({
     queryKey: ['projects', projectId],
@@ -63,8 +64,8 @@ export function ProjectMembersPage() {
   });
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
-    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
-    enabled: canViewUsers
+    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
+    enabled: canLoadUserLookup
   });
 
   const invalidate = async () => {
@@ -118,7 +119,7 @@ export function ProjectMembersPage() {
 
   const project = projectQuery.data;
   const users = usersQuery.data?.items
-    .filter((user) => user.profile?.organizationId === project?.organizationId)
+    .filter((user) => user.isActive && (!project?.organizationId || user.profile?.organizationId === project.organizationId))
     ?? [];
 
   if (!projectId) {

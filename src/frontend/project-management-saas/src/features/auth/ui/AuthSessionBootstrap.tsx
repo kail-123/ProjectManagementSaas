@@ -8,7 +8,7 @@ export function AuthSessionBootstrap({ children }: PropsWithChildren) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const clearSession = useAuthStore((state) => state.clearSession);
   const isInitialized = useAuthStore((state) => state.isInitialized);
-  const markInitialized = useAuthStore((state) => state.markInitialized);
+  const setCurrentUser = useAuthStore((state) => state.setCurrentUser);
   const setSession = useAuthStore((state) => state.setSession);
   const hasBootstrapped = useRef(false);
 
@@ -20,7 +20,10 @@ export function AuthSessionBootstrap({ children }: PropsWithChildren) {
     hasBootstrapped.current = true;
 
     if (accessToken) {
-      markInitialized();
+      void authApi
+        .getCurrentUser()
+        .then(setCurrentUser)
+        .catch(() => authApi.refreshSession().then(setSession).catch(clearSession));
       return;
     }
 
@@ -28,7 +31,7 @@ export function AuthSessionBootstrap({ children }: PropsWithChildren) {
       .refreshSession()
       .then(setSession)
       .catch(clearSession);
-  }, [accessToken, clearSession, markInitialized, setSession]);
+  }, [accessToken, clearSession, setCurrentUser, setSession]);
 
   if (!isInitialized) {
     return <LoadingScreen label="Securing session" />;
