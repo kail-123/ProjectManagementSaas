@@ -91,7 +91,14 @@ export function UsersPage() {
     enabled: canAssignRoles && canViewRoles
   });
 
-  const invalidate = async () => queryClient.invalidateQueries({ queryKey: ['users'] });
+  const invalidate = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['users'] }),
+      queryClient.invalidateQueries({ queryKey: ['projects'] }),
+      queryClient.invalidateQueries({ queryKey: ['work'] }),
+      queryClient.invalidateQueries({ queryKey: ['work-item'] })
+    ]);
+  };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
