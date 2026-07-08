@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isInitialized: boolean;
   setSession: (session: AuthenticationResponse) => void;
+  setCurrentUser: (user: CurrentUser) => void;
   clearSession: () => void;
   markInitialized: () => void;
 }

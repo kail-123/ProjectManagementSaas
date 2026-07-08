@@ -906,7 +906,7 @@ internal sealed class AddWorkItemCommentCommandHandler(
 
         if (mentionedUserIds.Count > 0)
         {
-            await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+            await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         }
 
         Guid? parentAuthorUserId = null;
@@ -1025,7 +1025,7 @@ internal sealed class UpdateWorkItemCommentCommandHandler(
 
         if (mentionedUserIds.Count > 0)
         {
-            await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+            await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         }
 
         var comment = await WorkRules.GetCommentAsync(commentRepository, paginationService, request.WorkItemId, request.CommentId, cancellationToken);
@@ -1368,7 +1368,7 @@ internal sealed class ListWorkItemMentionCandidatesQueryHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
 
         return await userManagementService.ListProjectMentionCandidatesAsync(workItem.ProjectId, request.Request, cancellationToken);
     }
@@ -1415,7 +1415,7 @@ internal sealed class AddWorkItemCommentMentionsCommandHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        var mentionedByUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        var mentionedByUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         var comment = await WorkRules.GetCommentAsync(commentRepository, paginationService, request.WorkItemId, request.CommentId, cancellationToken);
         WorkRules.EnsureCommentIsActive(comment);
 
@@ -1549,7 +1549,7 @@ internal sealed class ToggleWorkItemCommentReactionCommandHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        var reactionUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        var reactionUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         var emoji = WorkRules.EnsureSupportedReaction(request.Request.Emoji);
         var comment = await WorkRules.GetCommentAsync(commentRepository, paginationService, request.WorkItemId, request.CommentId, cancellationToken);
         WorkRules.EnsureCommentIsActive(comment);
@@ -1608,7 +1608,7 @@ internal sealed class DeleteWorkItemCommentReactionCommandHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        var reactionUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        var reactionUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         var emoji = WorkRules.EnsureSupportedReaction(request.Emoji);
         var comment = await WorkRules.GetCommentAsync(commentRepository, paginationService, request.WorkItemId, request.CommentId, cancellationToken);
 
@@ -1661,7 +1661,7 @@ internal sealed class MarkWorkItemCommentReadCommandHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        var readUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        var readUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         var comment = await WorkRules.GetCommentAsync(commentRepository, paginationService, request.WorkItemId, request.CommentId, cancellationToken);
 
         var read = await paginationService.SingleOrDefaultAsync(
@@ -1711,7 +1711,7 @@ internal sealed class MarkWorkItemCommentsReadCommandHandler(
     {
         var workItem = await WorkRules.GetWorkItemAsync(workItemRepository, paginationService, projectAccessService, request.WorkItemId, cancellationToken);
         var currentUserId = WorkRules.GetCurrentUserId(currentUserService);
-        var readUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken);
+        var readUserId = await WorkRules.EnsureCurrentUserIsProjectMemberAsync(projectMemberRepository, paginationService, workItem.ProjectId, currentUserId, cancellationToken, projectAccessService.CanAccessAllProjects);
         var now = dateTimeProvider.UtcNow;
 
         var commentIds = await paginationService.ToListAsync(
@@ -2574,8 +2574,14 @@ internal static class WorkRules
         IPaginationService paginationService,
         Guid projectId,
         Guid userId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool bypassMembershipCheck = false)
     {
+        if (bypassMembershipCheck)
+        {
+            return userId;
+        }
+
         var matchedUserId = await paginationService.SingleOrDefaultAsync(
             repository.Query()
                 .Where(member => member.ProjectId == projectId

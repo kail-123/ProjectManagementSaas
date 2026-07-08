@@ -68,27 +68,27 @@ export function ProjectsPage() {
   const canViewUsers = hasPermission(permissions.users.view);
   const organizationsQuery = useQuery({
     queryKey: ['organizations', 'lookup'],
-    queryFn: () => managementApi.organizations.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.organizations.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewOrganizations
   });
   const clientsQuery = useQuery({
     queryKey: ['clients', 'lookup'],
-    queryFn: () => managementApi.clients.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.clients.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewClients
   });
   const departmentsQuery = useQuery({
     queryKey: ['departments', 'lookup'],
-    queryFn: () => managementApi.departments.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.departments.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewDepartments
   });
   const teamsQuery = useQuery({
     queryKey: ['teams', 'lookup'],
-    queryFn: () => managementApi.teams.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.teams.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewTeams
   });
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
-    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewUsers
   });
 

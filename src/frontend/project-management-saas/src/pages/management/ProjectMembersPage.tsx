@@ -119,7 +119,7 @@ export function ProjectMembersPage() {
 
   const project = projectQuery.data;
   const users = usersQuery.data?.items
-    .filter((user) => user.profile?.organizationId === project?.organizationId)
+    .filter((user) => user.isActive && (!project?.organizationId || user.profile?.organizationId === project.organizationId))
     ?? [];
 
   if (!projectId) {

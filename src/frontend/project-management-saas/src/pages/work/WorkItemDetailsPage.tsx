@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   Bold,
@@ -85,7 +85,7 @@ import { WorkItemForm } from './workItemForm';
 import { toRequest } from './workItemFormModel';
 
 const pageRequest = { pageNumber: 1, pageSize: 50, sortBy: 'createdOn', sortDirection: 'desc' as const };
-const commentPageRequest = { pageNumber: 1, pageSize: 40, sortBy: 'createdOn', sortDirection: 'desc' as const };
+const commentPageRequest = { pageNumber: 1, pageSize: 100, sortBy: 'createdOn', sortDirection: 'desc' as const };
 const activityPageRequest = { pageNumber: 1, pageSize: 40, sortBy: 'createdAt', sortDirection: 'desc' as const };
 const linkTypes: WorkItemLinkType[] = ['Duplicate', 'Blocks', 'BlockedBy', 'RelatesTo', 'DependsOn'];
 const supportedReactions = ['\u{1F44D}', '\u2764\uFE0F', '\u{1F602}', '\u{1F525}', '\u{1F389}', '\u{1F680}', '\u{1F440}', '\u{1F604}', '\u{1F622}', '\u2757'];
@@ -182,12 +182,12 @@ export function WorkItemDetailsPage() {
   });
   const projectsQuery = useQuery({
     queryKey: ['projects', 'lookup'],
-    queryFn: () => managementApi.projects.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.projects.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewProjects
   });
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
-    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
+    queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 1000, sortBy: 'name', sortDirection: 'asc' }),
     enabled: canViewUsers
   });
   const commentsQuery = useInfiniteQuery({
@@ -195,7 +195,11 @@ export function WorkItemDetailsPage() {
     queryFn: ({ pageParam }) => managementApi.work.comments.list(workItemId!, { ...commentPageRequest, pageNumber: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.pageNumber < lastPage.totalPages ? lastPage.pageNumber + 1 : undefined,
-    enabled: Boolean(workItemId)
+    enabled: Boolean(workItemId),
+    staleTime: 30_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData
   });
   const attachmentsQuery = useQuery({
     queryKey: ['work-item', workItemId, 'attachments'],
