@@ -36,7 +36,9 @@ import {
   List as ListIcon,
   ListChecks,
   ListOrdered,
+  Maximize2,
   MessageSquare,
+  Minimize2,
   Paperclip,
   Pencil,
   Pin,
@@ -150,6 +152,7 @@ export function WorkItemDetailsPage() {
   const [form, setForm] = useState(() => toRequestPlaceholder());
   const [transitionStatusId, setTransitionStatusId] = useState('');
   const [commentBody, setCommentBody] = useState('');
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [editingComment, setEditingComment] = useState<WorkComment | null>(null);
   const [replyTo, setReplyTo] = useState<WorkComment | null>(null);
@@ -475,8 +478,8 @@ export function WorkItemDetailsPage() {
         )}
       />
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 1.05fr) minmax(430px, 0.95fr)' }, gap: 2.5, alignItems: 'stretch', flex: 1, minHeight: 0, overflow: { xs: 'visible', xl: 'hidden' } }}>
-        <Stack spacing={2.5} sx={{ minHeight: 0, overflow: { xs: 'visible', xl: 'auto' }, pr: { xl: 1 }, pb: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: commentsExpanded ? '1fr' : { xs: '1fr', xl: 'minmax(0, 1.05fr) minmax(430px, 0.95fr)' }, gap: 2.5, alignItems: 'stretch', flex: 1, minHeight: 0, overflow: { xs: 'visible', xl: 'hidden' } }}>
+        <Stack spacing={2.5} sx={{ minHeight: 0, overflow: { xs: 'visible', xl: 'auto' }, pr: { xl: 1 }, pb: 1, display: commentsExpanded ? { xs: 'none', xl: 'none' } : 'flex' }}>
           <Panel title="Summary">
             <Stack spacing={2}>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
@@ -568,10 +571,18 @@ export function WorkItemDetailsPage() {
         <Stack spacing={0} sx={{ minHeight: 0 }}>
           <Panel
             title="Comments"
-            sx={{ height: { xs: 'auto', xl: '100%' }, minHeight: { xs: 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
+            sx={{ height: { xs: commentsExpanded ? 'calc(100vh - 180px)' : 'auto', xl: '100%' }, minHeight: { xs: commentsExpanded ? 680 : 560, xl: 0 }, display: 'flex', flexDirection: 'column' }}
             action={(
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <Chip icon={<MessageSquare size={14} />} label={workItem.commentCount} size="small" />
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={commentsExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  onClick={() => setCommentsExpanded((expanded) => !expanded)}
+                >
+                  {commentsExpanded ? 'Collapse' : 'Expand'}
+                </Button>
                 {canManageComments ? (
                   <Button size="small" variant="outlined" disabled={markAllReadMutation.isPending} onClick={() => markAllReadMutation.mutate()}>
                     Mark All Read
@@ -580,7 +591,7 @@ export function WorkItemDetailsPage() {
               </Stack>
             )}
           >
-            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: 520, xl: 0 }, height: { xs: '72vh', xl: '100%' } }}>
+            <Box sx={{ display: 'grid', gridTemplateRows: canManageComments ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', minHeight: { xs: 520, xl: 0 }, height: { xs: commentsExpanded ? '100%' : '72vh', xl: '100%' } }}>
               <Box
                 onScroll={(event) => {
                   const target = event.currentTarget;

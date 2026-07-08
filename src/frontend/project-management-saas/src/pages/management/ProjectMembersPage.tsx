@@ -50,6 +50,7 @@ export function ProjectMembersPage() {
   const canManageMembers = hasPermission(permissions.projectMembers.manage);
   const canExportMembers = hasPermission(permissions.projectMembers.export);
   const canViewUsers = hasPermission(permissions.users.view);
+  const canLoadUserLookup = canViewUsers || canManageMembers;
 
   const projectQuery = useQuery({
     queryKey: ['projects', projectId],
@@ -64,7 +65,7 @@ export function ProjectMembersPage() {
   const usersQuery = useQuery({
     queryKey: ['users', 'lookup'],
     queryFn: () => managementApi.users.list({ pageNumber: 1, pageSize: 200, sortBy: 'name', sortDirection: 'asc' }),
-    enabled: canViewUsers
+    enabled: canLoadUserLookup
   });
 
   const invalidate = async () => {
