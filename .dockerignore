@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.vite/
+**/.vs/
+**/.vscode/
+**/TestResults/
+.git/
+.env
+outputs/
+work/
+README.md

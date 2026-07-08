@@ -1,0 +1,65 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pmsa-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SQLSERVER_SA_PASSWORD:?SQLSERVER_SA_PASSWORD is required}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/docker/api.Dockerfile
+    container_name: pmsa-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=${SQLSERVER_DATABASE:?SQLSERVER_DATABASE is required};User Id=sa;Password=${SQLSERVER_SA_PASSWORD:?SQLSERVER_SA_PASSWORD is required};Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True
+      Database__ApplyMigrationsOnStartup: ${DATABASE_APPLY_MIGRATIONS_ON_STARTUP:-true}
+      Authentication__Jwt__Issuer: ${JWT_ISSUER:?JWT_ISSUER is required}
+      Authentication__Jwt__Audience: ${JWT_AUDIENCE:?JWT_AUDIENCE is required}
+      Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY is required}
+      Authentication__RefreshTokens__CookieName: ${REFRESH_COOKIE_NAME:-pmsa-refresh-dev}
+      Authentication__RefreshTokens__CookieSameSite: ${REFRESH_COOKIE_SAME_SITE:-Lax}
+      Authentication__RefreshTokens__CookieSecure: ${REFRESH_COOKIE_SECURE:-false}
+      Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:?FRONTEND_ORIGIN is required}
+      SeedData__RunOnStartup: ${SEED_RUN_ON_STARTUP:-false}
+      SeedData__BootstrapAdmin__Enabled: ${SEED_BOOTSTRAP_ADMIN_ENABLED:-false}
+      SeedData__BootstrapAdmin__Email: ${SEED_BOOTSTRAP_ADMIN_EMAIL}
+      SeedData__BootstrapAdmin__Password: ${SEED_BOOTSTRAP_ADMIN_PASSWORD}
+      SeedData__BootstrapAdmin__DisplayName: ${SEED_BOOTSTRAP_ADMIN_DISPLAY_NAME}
+    ports:
+      - "${API_HTTP_PORT:-8080}:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/docker/frontend.Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:?VITE_API_BASE_URL is required}
+    container_name: pmsa-frontend
+    ports:
+      - "${FRONTEND_HTTP_PORT:-5173}:80"
+    depends_on:
+      - api
+
+volumes:
+  sqlserver-data:

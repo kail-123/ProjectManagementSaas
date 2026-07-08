@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8D36C725-C8BC-4A98-BE57-7EFB8120AD95}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{64283C61-7713-4531-8C06-C369BCD45F00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagementSaaS.Api", "src\backend\ProjectManagementSaaS.Api\ProjectManagementSaaS.Api.csproj", "{818C2E47-FF7C-4759-B790-A9EF49FCD34D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagementSaaS.Application", "src\backend\ProjectManagementSaaS.Application\ProjectManagementSaaS.Application.csproj", "{A777AE53-7CCF-4060-A77C-1F0D0C68CF59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagementSaaS.Domain", "src\backend\ProjectManagementSaaS.Domain\ProjectManagementSaaS.Domain.csproj", "{A455FB3A-19E4-45F0-8B5A-C30C144F60C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagementSaaS.Infrastructure", "src\backend\ProjectManagementSaaS.Infrastructure\ProjectManagementSaaS.Infrastructure.csproj", "{D690704F-7556-4B8F-A2FB-184F993A86F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CE7CB366-28F8-4CFB-BFA9-C76C448F5836}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{4DCC274C-67E4-490E-AAF8-A3899D78FFC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectManagementSaaS.Application.Tests", "tests\backend\ProjectManagementSaaS.Application.Tests\ProjectManagementSaaS.Application.Tests.csproj", "{F72EB7C7-D68B-4A04-96F2-971CD3965E27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{818C2E47-FF7C-4759-B790-A9EF49FCD34D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{818C2E47-FF7C-4759-B790-A9EF49FCD34D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{818C2E47-FF7C-4759-B790-A9EF49FCD34D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{818C2E47-FF7C-4759-B790-A9EF49FCD34D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A777AE53-7CCF-4060-A77C-1F0D0C68CF59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A777AE53-7CCF-4060-A77C-1F0D0C68CF59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A777AE53-7CCF-4060-A77C-1F0D0C68CF59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A777AE53-7CCF-4060-A77C-1F0D0C68CF59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A455FB3A-19E4-45F0-8B5A-C30C144F60C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A455FB3A-19E4-45F0-8B5A-C30C144F60C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A455FB3A-19E4-45F0-8B5A-C30C144F60C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A455FB3A-19E4-45F0-8B5A-C30C144F60C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D690704F-7556-4B8F-A2FB-184F993A86F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D690704F-7556-4B8F-A2FB-184F993A86F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D690704F-7556-4B8F-A2FB-184F993A86F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D690704F-7556-4B8F-A2FB-184F993A86F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F72EB7C7-D68B-4A04-96F2-971CD3965E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F72EB7C7-D68B-4A04-96F2-971CD3965E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F72EB7C7-D68B-4A04-96F2-971CD3965E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F72EB7C7-D68B-4A04-96F2-971CD3965E27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{64283C61-7713-4531-8C06-C369BCD45F00} = {8D36C725-C8BC-4A98-BE57-7EFB8120AD95}
+		{818C2E47-FF7C-4759-B790-A9EF49FCD34D} = {64283C61-7713-4531-8C06-C369BCD45F00}
+		{A777AE53-7CCF-4060-A77C-1F0D0C68CF59} = {64283C61-7713-4531-8C06-C369BCD45F00}
+		{A455FB3A-19E4-45F0-8B5A-C30C144F60C2} = {64283C61-7713-4531-8C06-C369BCD45F00}
+		{D690704F-7556-4B8F-A2FB-184F993A86F8} = {64283C61-7713-4531-8C06-C369BCD45F00}
+		{4DCC274C-67E4-490E-AAF8-A3899D78FFC3} = {CE7CB366-28F8-4CFB-BFA9-C76C448F5836}
+		{F72EB7C7-D68B-4A04-96F2-971CD3965E27} = {4DCC274C-67E4-490E-AAF8-A3899D78FFC3}
+	EndGlobalSection
+EndGlobal
